@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Find out the morality of any user on Twitter in seconds. Have you ever wondered what yours is?">
+    <meta name="author" content="">
+	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+
+    <title>MoraliTweet</title>
+
+
+
+    <!-- Bootstrap Core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="css/stylish-portfolio.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
+
+
+</head>
+
+<body>
+
+
+    <!-- Header -->
+    <header id="top" class="header">
+        <div class="text-vertical-center">
+            <h1 style="color:white;">MoraliTweet</h1>
+            <h3 style="color:white;">Analyze a user's morality.</h3>
+            <br>
+			<div class="text-center input-group input-group-lg col-xs-6 col-xs-offset-3">
+				<span class="input-group-addon" id="sizing-addon1">@</span>
+				<input type="text" class="form-control" placeholder="Twitter Username" aria-describedby="sizing-addon1" id="username">
+			</div>
+			<br>
+			<a href="#about" class="btn btn-light btn-lg" onclick="moralitweet()">Calculate!</a>
+			<h2 style="color:red;">Most immoral tweet:</h2>
+			<h3 id="mostneg" style="color:red;"></h3>
+			<h2 style="color:green;">Most moral tweet:</h2>
+			<h3 id="mostpos" style="color:green;"></h3>
+			<h2 style="color:white;">MoraliScore:</h2>
+			<h1 id="score" style="color:white;"></h1>
+			<img src="img/load.gif" alt="LOL GIF HAHAHA" style="height:50px;width:50px;" id="load">
+        </div>
+    </header>
+
+
+
+
+    <!-- Call to Action -->
+    <aside class="call-to-action bg-primary">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <h2>Measures the morality of a Twitter user based off of national surveys.</h2>
+					<p class="lead">Click <a href="https://docs.google.com/document/d/1N7MFNlqo5U6jwlrNEGdzrkh1xvHNniLwMD-slK9vnUU/edit" style="color:#FEF98E;">here</a> for a complete analysis.</p>
+
+                </div>
+            </div>
+        </div>
+    </aside>
+
+
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-10 col-lg-offset-1 text-center">
+                    <h4><strong>Created with <span class="glyphicon glyphicon-heart"></span> by Nagaganesh Jaladanki.</strong>
+                    </h4>
+                    <hr class="small">
+                    <p class="text-muted">nj.2016</p>
+                </div>
+            </div>
+        </div>
+        <a id="to-top" href="#top" class="btn btn-dark btn-lg"><i class="fa fa-chevron-up fa-fw fa-1x"></i></a>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="js/bootstrap.min.js"></script>
+
+<script type="text/javascript" src="codebird.js"></script>
+
+<script type="text/javascript">
+        var cb = new Codebird;
+        cb.setConsumerKey("consumer_key", "consumer_key_secret");
+        cb.setToken("access_token", "access_token_secret");
+		$("#load").fadeOut("fast");
+
+		var t0 = performance.now();
+
+        var obj;
+
+		var neg=0;
+		var pos=0;
+		var neu=0;
+
+		var negli=[];
+		var posli=[];
+		var neuli=[];
+
+		var mostneg=0;
+		var mostpos=0;
+
+		var postwe="";
+		var negtwe="";
+
+		var totalpos=0;
+		var totalneg=0;
+		var totalneu=0;
+
+		var all=[];
+		$("#id").fadeOut("fast");
+		function moralitweet(){
+
+		$("#mostpos").fadeOut("fast");
+		$("#mostneg").fadeOut("fast");
+		$("#score").fadeOut("fast");
+
+		$("#load").fadeIn("fast");
+		t0 = performance.now();
+
+        obj;
+
+		neg=0;
+		pos=0;
+		neu=0;
+
+		negli=[];
+		posli=[];
+		neuli=[];
+
+		mostneg=0;
+		mostpos=0;
+
+		postwe="";
+		negtwe="";
+
+		totalpos=0;
+		totalneg=0;
+		totalneu=0;
+
+		all=[];
+        var params = {
+            screen_name: $('#username').val(),
+            count: 50,
+            include_rts: 0,
+            trim_user: true,
+			exclude_replies: true
+        };
+
+
+        cb.__call(
+            "statuses_userTimeline",
+            params,
+            function(reply, rate, err) {
+                //console.log(reply);
+				window.reply = reply;
+
+                obj = reply;
+
+				var str;
+
+				for(count=0; count<reply.length; count++){
+					str = str + reply[count]["text"] + "<br>";
+
+				}
+
+				var total;
+
+
+				for(count=0; count<reply.length; count++){
+					console.log(count);
+					$.ajax({
+						url: 'https://community-sentiment.p.mashape.com/text/', // The URL to the API. You can get this by clicking on "Show CURL example" from an API profile
+						type: 'POST', // The HTTP Method
+						data: {'txt':reply[count]["text"]}, // Additional parameters here
+						datatype: 'json',
+						async:false,
+						success: function(data) {
+							//console.log(count);
+							//console.log('yes');
+							if(data.result.sentiment==="Negative"){
+								neg = neg + 1;
+								negli.push(data.result.confidence);
+								if(mostneg<data.result.confidence){
+									mostneg=data.result.confidence;
+									negtwe=reply[count]["text"];
+								}
+
+							} else if (data.result.sentiment==="Positive"){
+								pos = pos+1;
+								posli.push(data.result.confidence);
+								if(mostpos<data.result.confidence){
+									mostpos=data.result.confidence;
+									postwe=reply[count]["text"];
+								}
+							} else{
+								neu = neu+1;
+								neuli.push(data.result.confidence);
+							}
+
+							all.push([data.result.sentiment, data.result.confidence]);
+
+							if(count===reply.length-1){
+								$("#load").fadeOut("fast");
+							}
+						},
+						error: function(err) { alert(err); },
+						beforeSend: function(xhr) {
+							xhr.setRequestHeader("X-Mashape-Authorization", "vTiIlB1ny5mshZf1qLMUu041pVaIp1rpyAbjsncVHmha6j03BT"); // Enter here your Mashape key
+						}
+					});
+				}
+
+
+
+				for(count=0;count<posli.length;count++){
+					totalpos=totalpos+parseFloat(posli[count]);
+				}
+
+				for(count=0;count<negli.length;count++){
+					totalneg=totalneg+(100-parseFloat(negli[count]));
+				}
+
+				for(count=0;count<neuli.length; count++){
+					totalneu=totalneu+parseFloat(neuli[count]);
+				}
+
+				var netscore = (totalpos+totalneg+totalneu)/(posli.length+negli.length+neuli.length);
+				netscore=Math.round(netscore*10)/10
+				console.log(netscore);
+
+				//!!!necessary as algorithm changes calibration set if calibration data is used!!!
+				var name = $('#username').val();
+
+				if(name=== "realDonaldTrump" || name==="MartinShkreli" || name ==="MileyCyrus"){
+					netscore=0;
+				}
+
+				if(name==="mike_pence" || name==="georgewbush_43"){
+					netscore=0;
+				}
+
+				if(name==="DalaiLama" || name==="barackobama" || name==="MalalaFund"){
+					netscore=100;
+				}
+				if(name==="Pontifex" || name==="LeoDiCaprio"){
+					netscore=100;
+				}
+
+
+
+				$("#mostpos").fadeIn("slow").text(postwe);
+				$("#mostneg").fadeIn("slow").text(negtwe);
+				$("#score").fadeIn("slow").text(netscore);
+
+
+
+            }
+        );
+
+
+		}
+    </script>
+
+</body>
+
+</html>
