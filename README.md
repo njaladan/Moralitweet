@@ -1,5 +1,4 @@
 # Moralitweet
-### Sentiment analysis based web app to measure the morality of tweets.
 
 Moralitweet is a small web app (written almost completely in Javascript) that uses data from several surveys to compute what the morality of a person's tweets are. It should be said that morality is a pretty tough issue whose nuances cannot be understood through just sentiment analysis. However, if you're like to read my original write-up on the topic, you can find it [here](https://docs.google.com/document/d/1N7MFNlqo5U6jwlrNEGdzrkh1xvHNniLwMD-slK9vnUU/edit).
 
